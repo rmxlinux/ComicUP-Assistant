@@ -10,10 +10,15 @@ This program is used to execute mouse operations recorded in files.
 ***TIMESET and TIMEEND are used to specify the start and end of a time list.
 update 2024.0.0.02a: Time table moved to an extra program. 
 
+This file is 'relative mode' of cupa.exe.
+
 Support the following operations:
 X [x]        - Divide the milliseconds of all DELAY operations by x.
 DELAY [ms]   - Wait for ms milliseconds.
 MOV [x] [y]  - Move the mouse pointer to the screen (x, y) in absolute coordinates.
+MOV_R [x] [y]- Move the mouse pointer to the (x, y) in foreground window in absolute coordinates.
+SHOW [title] - Show the window to the foreground with title.
+SHOWD        - Show the desktop.
 KEYDOWN [id] - Press the button corresponding to the ID.
 KEYUP [id]   - Release the button corresponding to the ID.
 LDOWN,LUP,
@@ -48,6 +53,19 @@ void task(char* filename) {
 			std::cin >> dx >> dy ;
 			moveto(dx, dy) ;
 		}
+		if (com == "MOV_R") {
+			int dx, dy ;
+			std::cin >> dx >> dy ;
+			moveto_r(dx, dy) ;
+		}
+        if (com == "SHOW") {
+            std::string title ;
+            getline(std::cin, title) ;
+            can_can_need(title.c_str()) ;
+        }
+        if (com == "SHOWD") {
+            showDesktop() ;
+        }
 		if (com == "KEYDOWN") {
 			int key_id ;
 			std::cin >> key_id ;

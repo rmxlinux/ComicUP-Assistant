@@ -8,11 +8,37 @@
 //ansi
 #define cur() std::chrono::high_resolution_clock::now()
 #define KEY_DOWN(VK_NONAME) ((GetAsyncKeyState(VK_NONAME) & 0x8000) ? 1:0)
+void can_can_need(const char* h) {
+    HWND target = FindWindow(NULL, h) ;
+    if(target) SetForegroundWindow(target) ;
+}
+void can_can_need(HWND target) { if(target) SetForegroundWindow(target) ; }
 void getPos(int& x, int& y) {
     POINT cursorPos;
     GetCursorPos(&cursorPos);
     x = cursorPos.x;
     y = cursorPos.y;
+}
+std::string getWindowTitle(HWND hWnd) {
+    char buffer[1024];
+    int length = GetWindowText(hWnd, buffer, 1024);
+    return (length) ? std::string(buffer) : "";
+}
+void getRelativePos(int &x, int &y, std::string &c_name) {
+    int x_abs, y_abs ;
+    getPos(x_abs, y_abs) ;
+    HWND NowWindow = GetForegroundWindow() ;
+    can_can_need(NowWindow) ;
+    RECT win_r ;
+    GetWindowRect(NowWindow, &win_r) ;
+    x = x_abs - win_r.left ;
+    y = y_abs - win_r.top ;
+    /*
+    int size = GetWindowTextLength(NowWindow) + 1;
+    char* c_name_ch = new char[size];
+    GetClassName(NowWindow, c_name_ch, size) ;
+    c_name = c_name_ch ;*/
+    c_name = getWindowTitle(NowWindow) ;
 }
 
 int iskp[256 + 5] ;
@@ -63,8 +89,17 @@ void intro() {
 			if(!iskp[VK_LBUTTON]) {
 				iskp[VK_LBUTTON] = 1 ;
 				out << "DELAY " << dur << std::endl ;
-				getPos(x, y) ;
-				out << "MOV " << x << " " << y << std::endl ;
+				std::string t ;
+				getRelativePos(x, y, t) ;
+				if(t.size() < 2) {
+					out << "SHOWD" << t << std::endl ;
+					getPos(x, y) ;
+					out << "MOV " << x << " " << y << std::endl ;
+				}
+				else {
+					out << "SHOW " << t << std::endl ;
+					out << "MOV_R " << x << " " << y << std::endl ;
+				}
 				out << "LDOWN" << std::endl ;
 				last_ms = now_ms ;
 			}
@@ -73,8 +108,17 @@ void intro() {
 			if(iskp[VK_LBUTTON]) {
 				iskp[VK_LBUTTON] = 0 ;
 				out << "DELAY " << dur << std::endl ;
-				getPos(x, y) ;
-				out << "MOV " << x << " " << y << std::endl ;
+				std::string t ;
+				getRelativePos(x, y, t) ;
+				if(t.size() < 2) {
+					out << "SHOWD" << t << std::endl ;
+					getPos(x, y) ;
+					out << "MOV " << x << " " << y << std::endl ;
+				}
+				else {
+					out << "SHOW " << t << std::endl ;
+					out << "MOV_R " << x << " " << y << std::endl ;
+				}
 				out << "LUP" << std::endl ;
 				last_ms = now_ms ;
 			}
@@ -83,8 +127,17 @@ void intro() {
 			if(!iskp[VK_RBUTTON]) {
 				iskp[VK_RBUTTON] = 1 ;
 				out << "DELAY " << dur << std::endl ;
-				getPos(x, y) ;
-				out << "MOV " << x << " " << y << std::endl ;
+				std::string t ;
+				getRelativePos(x, y, t) ;
+				if(t.size() < 2) {
+					out << "SHOWD" << t << std::endl ;
+					getPos(x, y) ;
+					out << "MOV " << x << " " << y << std::endl ;
+				}
+				else {
+					out << "SHOW " << t << std::endl ;
+					out << "MOV_R " << x << " " << y << std::endl ;
+				}
 				out << "RDOWN" << std::endl ;
 				last_ms = now_ms ;
 			}
@@ -93,8 +146,17 @@ void intro() {
 			if(iskp[VK_RBUTTON]) {
 				iskp[VK_RBUTTON] = 0 ;
 				out << "DELAY " << dur << std::endl ;
-				getPos(x, y) ;
-				out << "MOV " << x << " " << y << std::endl ;
+				std::string t ;
+				getRelativePos(x, y, t) ;
+				if(t.size() < 2) {
+					out << "SHOWD" << t << std::endl ;
+					getPos(x, y) ;
+					out << "MOV " << x << " " << y << std::endl ;
+				}
+				else {
+					out << "SHOW " << t << std::endl ;
+					out << "MOV_R " << x << " " << y << std::endl ;
+				}
 				out << "RUP" << std::endl ;
 				last_ms = now_ms ;
 			}
@@ -126,22 +188,6 @@ void intro() {
 }
 
 int main() {
-	printf("\
-ComicUP Assistant 2024.0.0.03a 简易引导\n\
-Copyright (C)2024 rmxlinux\n\n\
-如果您遇到了乱码问题，请运行easy_intro_utf8.exe。\n\
-If you encounter corrupted content, please run easy_intro_utf8.exe.\n\n\
-") ;
-	printf("\
-您想以相对坐标模式记录操作吗？\n\
-该模式下程序会记录操作的相对位置，因此不必固定窗口位置。(y/n)\
-") ; 
-	char mode = getch() ;
-	if (mode == 'y') {
-		printf("\n") ; 
-		system("easy_intro_r") ;
-		return 0 ;
-	}
 	while(1) {
 		intro() ;
 		printf("是否还想继续录制操作？(y/n)") ;
